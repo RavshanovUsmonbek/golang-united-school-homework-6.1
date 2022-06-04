@@ -1,6 +1,8 @@
 package golang_united_school_homework
 
-import "errors"
+import (
+	"errors"
+)
 
 // box contains list of shapes and able to perform operations on them
 type box struct {
@@ -74,19 +76,53 @@ func (b *box) SumArea() float64 {
 	return sum
 }
 
+func RemoveFromSlice(s []Shape, index int) ([]Shape, error) {
+	// validation of index
+	if index < 0 || index >= len(s) {
+		return nil, errors.New("index is out of the scope")
+	}
+
+	// handling first element removal
+	if index == 0 {
+		return s[index+1:], nil
+	}
+	// handling last element removal
+	if index == len(s)-1 {
+		return s[:index], nil
+	}
+
+	// handling removal of element lying somewhere in the middle
+	return append(s[:index], s[index+1:]...), nil
+}
+
+func in(s []int, value int) bool {
+	for _, val := range s {
+		if val == value {
+			return true
+		}
+	}
+	return false
+}
+
 // RemoveAllCircles removes all circles in the list
 // whether circles are not exist in the list, then returns an error
 func (b *box) RemoveAllCircles() error {
-	tempArr := []Shape{}
-	for _, shape := range b.shapes {
-		if value, ok := shape.(Circle); !ok {
-			// b.shapes = append(b.shapes[:index], b.shapes[index+1:]...)
-			tempArr = append(tempArr, value)
+	indeces := []int{}
+	for ind, el := range b.shapes {
+		if _, ok := el.(Circle); ok {
+			indeces = append(indeces, ind)
 		}
 	}
-	if len(b.shapes) == len(tempArr) {
-		return errors.New("No circles in the list")
+	if len(indeces) == 0 {
+		return errors.New("No circle shapes in the box")
 	}
-	b.shapes = tempArr
+
+	temp := []Shape{}
+	for i, el := range b.shapes {
+		if !in(indeces, i) {
+			temp = append(temp, el)
+		}
+	}
+	b.shapes = temp
 	return nil
 }
